@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
-import { RecyclablesController } from './recyclables.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { RecyclablesService } from './recyclables.service';
+import { RecyclablesController } from './recyclables.controller';
+import { Recyclable } from './recyclable.entity';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([Recyclable])],
   controllers: [RecyclablesController],
-  providers: [RecyclablesService]
+  providers: [RecyclablesService],
+  exports: [RecyclablesService],
 })
 export class RecyclablesModule {}

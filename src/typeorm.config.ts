@@ -3,11 +3,11 @@ import { ConfigService } from '@nestjs/config';
 
 export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOptions => ({
   type: 'postgres',
-  host: configService.get('DB_HOST'),
-  port: +configService.get<number>('DB_PORT'),
-  username: configService.get('DB_USERNAME'),
-  password: configService.get('DB_PASSWORD'),
-  database: configService.get('DB_NAME'),
+  host: process.env.DB_HOST || 'postgres',
+  port: parseInt(process.env.DB_PORT, 10) || 5432,
+  username: process.env.DB_USERNAME || 'ecyce',
+  password: process.env.DB_PASSWORD || 'ecyce',
+  database: process.env.DB_DATABASE || 'ecyce',
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
   synchronize: configService.get('NODE_ENV') !== 'production',
   autoLoadEntities: true,

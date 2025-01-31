@@ -12,7 +12,7 @@ export class RewardsController {
     return this.rewardsService.create(createRewardDto);
   }
 
-  @Get()
+  @Get('findAll')
   findAll() {
     return this.rewardsService.findAll();
   }

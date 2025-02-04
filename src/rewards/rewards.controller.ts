@@ -19,26 +19,26 @@ export class RewardsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.rewardsService.findOne(+id);
+    return this.rewardsService.findOne(id);
   }
 
   @Get('user/:userId')
   findByUser(@Param('userId') userId: string) {
-    return this.rewardsService.findByUser(+userId);
+    return this.rewardsService.findByUser(userId);
   }
 
   @Get('user/:userId/total')
   getUserTotalPoints(@Param('userId') userId: string) {
-    return this.rewardsService.getUserTotalPoints(+userId);
+    return this.rewardsService.getUserTotalPoints(userId);
   }
 
   @Patch(':id') //부분적 변경
   update(@Param('id') id: string, @Body() updateRewardDto: UpdateRewardDto) {
-    return this.rewardsService.update(+id, updateRewardDto);
+    return this.rewardsService.update(id, updateRewardDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.rewardsService.remove(+id);
+    return this.rewardsService.remove(id);
   }
 }

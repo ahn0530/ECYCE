@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsNumber, IsString, IsBoolean, IsOptional } from 'class-validator';
 
 export class CreateRewardDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  userId: number;
+  userId: string;
 
   @IsNumber()
   @IsNotEmpty()

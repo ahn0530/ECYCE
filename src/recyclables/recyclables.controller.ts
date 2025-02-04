@@ -19,12 +19,12 @@ export class RecyclablesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.recyclablesService.findOne(+id);
+    return this.recyclablesService.findOne(id);
   }
 
   @Get('user/:userId')
   findByUser(@Param('userId') userId: string) {
-    return this.recyclablesService.findByUser(+userId);
+    return this.recyclablesService.findByUser(userId);
   }
 
   @Patch(':id')

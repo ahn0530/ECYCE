@@ -22,7 +22,7 @@ export class HistoryService {
     });
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.historyRepository.findOne({
       where: { id },
       relations: ['user', 'recyclable']
@@ -30,7 +30,7 @@ export class HistoryService {
   }
 
   // 사용자별 히스토리 조회
-  findByUser(userId: number) {
+  findByUser(userId: string) {
     return this.historyRepository.find({
       where: { user: { id: userId } },
       relations: ['user', 'recyclable'],
@@ -49,11 +49,11 @@ export class HistoryService {
     });
   }
 
-  update(id: number, updateHistoryDto: UpdateHistoryDto) {
+  update(id: string, updateHistoryDto: UpdateHistoryDto) {
     return this.historyRepository.update(id, updateHistoryDto);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.historyRepository.delete(id);
   }
 }

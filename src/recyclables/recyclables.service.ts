@@ -22,7 +22,7 @@ export class RecyclablesService {
     });
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.recyclablesRepository.findOne({ 
       where: { id },
       relations: ['user']
@@ -38,7 +38,7 @@ export class RecyclablesService {
   }
 
   // 사용자별 재활용품 조회
-  findByUser(userId: number) {
+  findByUser(userId: string) {
     return this.recyclablesRepository.find({
       where: { user: { id: userId } },
       relations: ['user']

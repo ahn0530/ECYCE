@@ -12,6 +12,6 @@ export class CreateRecyclableDto {
   @IsNumber()
   points: number;
 
-  @IsNumber()
-  userId: number;
+  @IsString()
+  userId: string;
 }

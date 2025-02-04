@@ -1,13 +1,13 @@
 import { IsNotEmpty, IsNumber, IsString, IsOptional } from 'class-validator';
 
 export class CreateHistoryDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  userId: number;
+  userId: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  recyclableId: number;
+  recyclableId: string;
 
   @IsNumber()
   @IsNotEmpty()

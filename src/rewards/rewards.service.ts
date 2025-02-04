@@ -22,7 +22,7 @@ export class RewardsService {
     });
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.rewardsRepository.findOne({
       where: { id },
       relations: ['user']
@@ -30,7 +30,7 @@ export class RewardsService {
   }
 
   // 사용자별 리워드 조회
-  findByUser(userId: number) {
+  findByUser(userId: string) {
     return this.rewardsRepository.find({
       where: { user: { id: userId } },
       relations: ['user'],
@@ -39,7 +39,7 @@ export class RewardsService {
   }
 
   // 사용자의 총 포인트 조회
-  async getUserTotalPoints(userId: number) {
+  async getUserTotalPoints(userId: string) {
     const rewards = await this.rewardsRepository.find({
       where: { user: { id: userId } }
     });
@@ -49,11 +49,11 @@ export class RewardsService {
     }, 0);
   }
 
-  update(id: number, updateRewardDto: UpdateRewardDto) {
+  update(id: string, updateRewardDto: UpdateRewardDto) {
     return this.rewardsRepository.update(id, updateRewardDto);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.rewardsRepository.delete(id);
   }
 }

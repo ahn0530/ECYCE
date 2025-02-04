@@ -1,9 +1,11 @@
+version: '3.8'
 
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ecyce-app:latest
     container_name: nestjs-app
     restart: always
     ports:

@@ -8,7 +8,7 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
   username: process.env.DB_USERNAME || 'ecyce',
   password: process.env.DB_PASSWORD || 'ecyce',
   database: process.env.DB_DATABASE || 'ecyce',
-  entities: [__dirname + '/**/*.entity{.ts,.js}'],
+  entities: [__dirname + '/**/*.entity{.ts, .js}'],
   synchronize: configService.get('NODE_ENV') !== 'production',
   autoLoadEntities: true,
 });

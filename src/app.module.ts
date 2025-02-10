@@ -6,6 +6,7 @@ import { RecyclablesModule } from './recyclables/recyclables.module';
 import { HistoryModule } from './history/history.module';
 import { RewardsModule } from './rewards/rewards.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     UsersModule,
     RecyclablesModule,
+    AuthModule,
     HistoryModule,
     RewardsModule,
   ],

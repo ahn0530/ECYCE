@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, NotFoundException } from '@nestjs/common';
 import { HistoryService } from './history.service';
 import { CreateHistoryDto } from './dto/create-history.dto';
 import { UpdateHistoryDto } from './dto/update-history.dto';
@@ -8,43 +8,22 @@ export class HistoryController {
   constructor(private readonly historyService: HistoryService) {}
 
   @Post()
-  create(@Body() createHistoryDto: CreateHistoryDto) {
-    return this.historyService.create(createHistoryDto);
+  async create(@Body() createHistoryDto: CreateHistoryDto) {
+    return this.historyService.createHistory(createHistoryDto);
   }
 
-  @Get()
-  findAll() {
-    return this.historyService.findAll();
+  @Get(':userId')
+  async getUserHistory(@Param('userId') userId: string) {
+    return this.historyService.getUserHistory(userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.historyService.findOne(id);
+  @Get(':userId/stats')
+  async getUserRecyclingStats(@Param('userId') userId: string) {
+    return this.historyService.getUserRecyclingStats(userId);
   }
 
-  @Get('user/:userId')
-  findByUser(@Param('userId') userId: string) {
-    return this.historyService.findByUser(userId);
-  }
-
-  @Get('date-range')
-  findByDateRange(
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-  ) {
-    return this.historyService.findByDateRange(
-      new Date(startDate),
-      new Date(endDate),
-    );
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateHistoryDto: UpdateHistoryDto) {
-    return this.historyService.update(id, updateHistoryDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.historyService.remove(id);
+  @Get(':userId/points')
+  async getUserPointsHistory(@Param('userId') userId: string) {
+    return this.historyService.getUserPointsHistory(userId);
   }
 }

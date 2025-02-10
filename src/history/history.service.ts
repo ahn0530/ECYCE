@@ -1,59 +1,72 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { History } from './history.entity';
 import { CreateHistoryDto } from './dto/create-history.dto';
 import { UpdateHistoryDto } from './dto/update-history.dto';
+import { User } from 'src/users/user.entity';
+import { Recyclable } from 'src/recyclables/recyclable.entity';
 
 @Injectable()
 export class HistoryService {
   constructor(
     @InjectRepository(History)
     private historyRepository: Repository<History>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Recyclable)
+    private recyclablesRepository: Repository<Recyclable>,
   ) {}
 
-  create(createHistoryDto: CreateHistoryDto) {
-    return this.historyRepository.save(createHistoryDto);
+  async createHistory(createHistoryDto: CreateHistoryDto): Promise<History> {
+    const { userId, category, points, count } = createHistoryDto;
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    const history = this.historyRepository.create({ user, category, points, count });
+    await this.historyRepository.save(history);
+
+    // 사용자 총 포인트 업데이트
+    user.points += points * count;
+    await this.userRepository.save(user);
+
+    return history;
   }
 
-  findAll() {
-    return this.historyRepository.find({
-      relations: ['user', 'recyclable']
-    });
-  }
+  async getUserHistory(userId: string): Promise<{ totalPoints: number; totalRecycling: number; history: History[] }> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
 
-  findOne(id: string) {
-    return this.historyRepository.findOne({
-      where: { id },
-      relations: ['user', 'recyclable']
-    });
-  }
+    const history = await this.historyRepository.find({ where: { user: { id: userId } } });
+    const totalPoints = user.points;
+    const totalRecycling = history.length;
 
-  // 사용자별 히스토리 조회
-  findByUser(userId: string) {
-    return this.historyRepository.find({
-      where: { user: { id: userId } },
-      relations: ['user', 'recyclable'],
-      order: { createdAt: 'DESC' }
-    });
+    return { totalPoints, totalRecycling, history };
   }
+  async getUserRecyclingStats(userId: string) {
+    const history = await this.historyRepository.find({ where: { user: { id: userId } } });
 
-  // 기간별 히스토리 조회
-  findByDateRange(startDate: Date, endDate: Date) {
-    return this.historyRepository.find({
-      where: {
-        createdAt: Between(startDate, endDate)
-      },
-      relations: ['user', 'recyclable'],
-      order: { createdAt: 'DESC' }
-    });
+    const stats = history.reduce((acc, record) => {
+        acc[record.category] = (acc[record.category] || 0) + record.count;
+        return acc;
+    }, {});
+
+    return stats;
   }
+  async getUserPointsHistory(userId: string) {
+    const history = await this.historyRepository.find({ where: { user: { id: userId } } });
 
-  update(id: string, updateHistoryDto: UpdateHistoryDto) {
-    return this.historyRepository.update(id, updateHistoryDto);
-  }
+    const pointsHistory = history.map((record) => ({
+        date: record.createdAt,
+        points: record.points,
+        category: record.category,
+    }));
 
-  remove(id: string) {
-    return this.historyRepository.delete(id);
+    return pointsHistory;
   }
 }

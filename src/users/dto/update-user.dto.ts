@@ -9,7 +9,4 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
 
   @IsOptional()
   points?: number;
-
-  @IsOptional()
-  isActive?: boolean;
 }

@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
-
+import { Entity, Column, PrimaryColumn, OneToMany } from 'typeorm';
+import { History } from '../history/history.entity';
+import { UserReward } from '../rewards/user_reward.entity';
 @Entity()
 export class User {
   @PrimaryColumn()
@@ -11,15 +12,15 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
-  email: string;
-
   @Column({ default: 0 })
   points: number;
 
-  @Column({ default: true })
-  isActive: boolean;
-
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+
+  @OneToMany(() => History, (history) => history.user)
+  history: History[];
+
+  @OneToMany(() => UserReward, (userReward) => userReward.user)
+  rewards: UserReward[];
 }

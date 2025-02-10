@@ -12,7 +12,7 @@ export class LocalSerializer extends PassportSerializer {
         done(null, user.id); // 세션에 id 저장 완료 알림
     }    
 
-    async deserializeUser(userId: number, done: Function) {
+    async deserializeUser(userId: string, done: Function) {
         try {
             const user = await this.usersService.findById(userId);
             done(null, user);// 사용자 정보 복원 완료 알림

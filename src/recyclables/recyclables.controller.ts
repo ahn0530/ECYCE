@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Put } from '@nestjs/common';
 import { RecyclablesService } from './recyclables.service';
 import { CreateRecyclableDto } from './dto/create-recyclable.dto';
 import { UpdateRecyclableDto } from './dto/update-recyclable.dto';
@@ -17,23 +17,30 @@ export class RecyclablesController {
     return this.recyclablesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.recyclablesService.findOne(id);
+  @Get(':barcode')
+  async findOne(@Param('barcode') barcode: string) {
+    const recyclable = await this.recyclablesService.findByBarcode(barcode);
+    if (!recyclable) {
+      throw new NotFoundException('해당 바코드의 재활용품을 찾을 수 없습니다.');
+    }
+    return recyclable;
   }
 
-  @Get('user/:userId')
-  findByUser(@Param('userId') userId: string) {
-    return this.recyclablesService.findByUser(userId);
+  @Put(':barcode')
+  async update(@Param('barcode') barcode: string, @Body() updateRecyclableDto: UpdateRecyclableDto) {
+    const updated = await this.recyclablesService.update(barcode, updateRecyclableDto);
+    if (!updated) {
+      throw new NotFoundException('업데이트할 재활용품을 찾을 수 없습니다.');
+    }
+    return updated;
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecyclableDto: UpdateRecyclableDto) {
-    return this.recyclablesService.update(+id, updateRecyclableDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.recyclablesService.remove(+id);
+  @Delete(':name')
+  async remove(@Param('name') name: string) {
+    const deleted = await this.recyclablesService.remove(name);
+    if (!deleted) {
+      throw new NotFoundException('삭제할 재활용품을 찾을 수 없습니다.');
+    }
+    return deleted;
   }
 }

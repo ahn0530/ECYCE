@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Recyclable } from './recyclable.entity';
@@ -12,36 +12,39 @@ export class RecyclablesService {
     private recyclablesRepository: Repository<Recyclable>,
   ) {}
 
-  create(createRecyclableDto: CreateRecyclableDto) {
-    return this.recyclablesRepository.save(createRecyclableDto);
+  async create(recyclable: CreateRecyclableDto) {
+    const existing = await this.recyclablesRepository.findOne(
+      { where: { barcode: recyclable.barcode } });
+    if (existing) {
+      throw new ConflictException('이미 등록된 바코드입니다.');
+    }
+    return this.recyclablesRepository.insert(recyclable);
+  }
+  
+  async findAll(): Promise<Recyclable[]> {
+    return await this.recyclablesRepository.find();
   }
 
-  findAll() {
-    return this.recyclablesRepository.find({
-      relations: ['user']
-    });
+  async findByBarcode(barcode: string): Promise<Recyclable> {
+    return await this.recyclablesRepository.findOne({ where: { barcode } });
   }
-
-  findOne(id: string) {
-    return this.recyclablesRepository.findOne({ 
-      where: { id },
-      relations: ['user']
-    });
+  
+  async update(barcode: string, updateRecyclableDto: UpdateRecyclableDto): Promise<boolean> {
+    const result = await this.recyclablesRepository.update({ barcode }, updateRecyclableDto);
+    
+    if (result.affected === 0) {
+      throw new NotFoundException('업데이트할 재활용품을 찾을 수 없습니다.');
+    }
+  
+    return true;
   }
+  
 
-  update(id: number, updateRecyclableDto: UpdateRecyclableDto) {
-    return this.recyclablesRepository.update(id, updateRecyclableDto);
-  }
-
-  remove(id: number) {
-    return this.recyclablesRepository.delete(id);
-  }
-
-  // 사용자별 재활용품 조회
-  findByUser(userId: string) {
-    return this.recyclablesRepository.find({
-      where: { user: { id: userId } },
-      relations: ['user']
-    });
+  async remove(name: string): Promise<boolean> {
+    const result = await this.recyclablesRepository.delete(name);
+    if (result.affected === 0) {
+      throw new NotFoundException('삭제할 재활용품을 찾을 수 없습니다.');
+    }
+    return true;
   }
 }

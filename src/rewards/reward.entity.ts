@@ -1,26 +1,23 @@
-import { Entity, Column, ManyToOne, PrimaryColumn } from 'typeorm';
-import { User } from '../users/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+
 
 @Entity()
 export class Reward {
-  @PrimaryColumn()
-  id: string;
-
-  @ManyToOne(() => User)
-  user: User;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
-  points: number;
+  name: string;
 
   @Column()
-  type: string;  // 적립 또는 사용
-
-  @Column({ nullable: true })
   description: string;
+
+  @Column()
+  imageUrl: string;
+
+  @Column()
+  cost: number; // 필요한 포인트
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
-
-  @Column({ default: false })
-  isUsed: boolean;
 }

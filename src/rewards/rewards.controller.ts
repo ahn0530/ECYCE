@@ -5,40 +5,25 @@ import { UpdateRewardDto } from './dto/update-reward.dto';
 
 @Controller('rewards')
 export class RewardsController {
-  constructor(private readonly rewardsService: RewardsService) {}
+  constructor(private readonly rewardService: RewardsService) {}
+
+  @Get()
+  async getAvailableRewards() {
+    return this.rewardService.getAvailableRewards();
+  }
 
   @Post()
-  create(@Body() createRewardDto: CreateRewardDto) {
-    return this.rewardsService.create(createRewardDto);
+  async createReward(@Body() createRewardDto: CreateRewardDto) {
+    return this.rewardService.createReward(createRewardDto);
   }
 
-  @Get('findAll')
-  findAll() {
-    return this.rewardsService.findAll();
+  @Post(':userId/redeem/:rewardId')
+  async redeemReward(@Param('userId') userId: string, @Param('rewardId') rewardId: number) {
+    return this.rewardService.redeemReward(userId, rewardId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rewardsService.findOne(id);
-  }
-
-  @Get('user/:userId')
-  findByUser(@Param('userId') userId: string) {
-    return this.rewardsService.findByUser(userId);
-  }
-
-  @Get('user/:userId/total')
-  getUserTotalPoints(@Param('userId') userId: string) {
-    return this.rewardsService.getUserTotalPoints(userId);
-  }
-
-  @Patch(':id') //부분적 변경
-  update(@Param('id') id: string, @Body() updateRewardDto: UpdateRewardDto) {
-    return this.rewardsService.update(id, updateRewardDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.rewardsService.remove(id);
+  @Get(':userId/history')
+  async getUserRewardHistory(@Param('userId') userId: string) {
+    return this.rewardService.getUserRewardHistory(userId);
   }
 }

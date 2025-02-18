@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>제품/기업 검색</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    form input, form select, form button {
+      padding: 5px;
+      margin: 5px;
+      font-size: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    #pagination {
+      margin-top: 10px;
+    }
+    #pagination button {
+      padding: 5px 10px;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>제품/기업 검색</h1>
+  <form id="searchForm">
+    <input type="text" id="searchQuery" name="q" placeholder="검색어 입력 (예: Eco)" required />
+    <select id="searchType" name="type">
+      <option value="">전체</option>
+      <option value="product">제품</option>
+      <option value="company">기업</option>
+    </select>
+    <button type="submit">검색</button>
+  </form>
+  
+  <div id="results">
+    <table id="resultsTable">
+      <thead>
+        <tr>
+          <th>바코드</th>
+          <th>제품명</th>
+          <th>기업명</th>
+          <th>설명</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (results.length > 0) { %>
+          <% results.forEach(item => { %>
+            <tr>
+              <td><%= item.barcode %></td>
+              <td><%= item.name %></td>
+              <td><%= item.manufacturer %></td>
+              <td><%= item.additionalInfo %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="4">검색 결과가 없습니다.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+    <div id="pagination">
+      <button id="prevPage">이전</button>
+      <span id="currentPage">1</span>
+      <button id="nextPage">다음</button>
+    </div>
+  </div>
+</body>
+</html>

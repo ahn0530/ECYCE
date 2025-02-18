@@ -7,6 +7,7 @@ import { HistoryModule } from './history/history.module';
 import { RewardsModule } from './rewards/rewards.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { MeasurementModule } from './measurement/measurement.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     HistoryModule,
     RewardsModule,
+    MeasurementModule,
   ],
 })
 export class AppModule {}

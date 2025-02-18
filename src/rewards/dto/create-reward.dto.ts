@@ -1,9 +1,10 @@
 import { IsNotEmpty, IsNumber, IsString, IsBoolean, IsOptional } from 'class-validator';
 
 export class CreateRewardDto {
+
   @IsString()
   @IsNotEmpty()
-  userId: string;
+  name: string;
 
   @IsNumber()
   @IsNotEmpty()
@@ -11,13 +12,10 @@ export class CreateRewardDto {
 
   @IsString()
   @IsNotEmpty()
-  type: string;
+  imageUrl: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
-  @IsBoolean()
-  @IsOptional()
-  isUsed?: boolean;
 }

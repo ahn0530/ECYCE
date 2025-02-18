@@ -26,4 +26,5 @@ export class RewardsController {
   async getUserRewardHistory(@Param('userId') userId: string) {
     return this.rewardService.getUserRewardHistory(userId);
   }
+
 }

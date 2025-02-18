@@ -64,4 +64,11 @@ export class RewardsService {
         imageUrl: record.reward.imageUrl,
     }));
   }
+  
+  async getUserSpentPointsHistory(userId: string) {
+    const history = await this.userRewardRepository.find({
+      where: { user: { id: userId } },
+      relations: ['reward'],
+    });
+  }
 }

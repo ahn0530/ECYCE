@@ -28,15 +28,15 @@ async function seed() {
 
   // ✅ 1. Users 먼저 삽입
   const users = await userRepo.save([
-    { id: 'test', name: 'Alice',  password: '1234' },
-    { id: 'test1', name: 'Bob',  password: '1234' },
+    { id: 'test', name: 'Alice',  password: '1234', points: 10000},
+    { id: 'test1', name: 'Bob',  password: '1234', points: 10000 },
   ]);
   console.log('✅ Users seeded');
 
   // ✅ 2. Recyclables 삽입
   const recyclables = await recyclableRepo.save([
     { barcode: '8801121768129', name: 'Maeil 소화가 잘되는 우유 오리지널 190mL', category: '멸균팩', manufacturer: '매일유업(주)' },
-    { barcode: '8809288633052',name: 'BR 쿠키앤크림 우유 190ml', category: '멸균팩', manufacturer:'BR 쿠키앤크림 우유 190ml' },
+    { barcode: '8809288633052',name: 'BR 쿠키앤크림 우유 190ml', category: '멸균팩', manufacturer:'배스킨라빈스' },
   ]);
   console.log('✅ Recyclables seeded');
 
@@ -49,15 +49,15 @@ async function seed() {
 
   // ✅ 4. History 삽입 (Users 필요)
   const history = await historyRepo.save([
-    { user: users[0], category: '멸균팩', points: 20 },
-    { user: users[1], category: '멸균팩', points: 20 },
+    { user: users[0], manufacturer: '매일유업(주)', barcode: '8801121768129', category: '멸균팩', points: 20 },
+    { user: users[1], manufacturer: '매일유업(주)', barcode: '8801121768129',category: '멸균팩', points: 20 },
   ]);
   console.log('✅ History seeded');
 
   // ✅ 5. UserRewards 삽입 (Users & Rewards 필요)
   const userRewards = await userRewardRepo.save([
-    { user: users[0], reward: rewards[0], usedPoints: 0},
-    { user: users[1], reward: rewards[1], usedPoints: 0 },
+    { user: users[0], reward: rewards[0], usedPoints: 100},
+    { user: users[1], reward: rewards[1], usedPoints: 500 },
   ]);
   console.log('✅ User Rewards seeded');
 

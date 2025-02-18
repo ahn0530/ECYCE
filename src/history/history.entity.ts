@@ -11,6 +11,13 @@ export class History {
   user: User;
 
   @Column()
+  barcode: string; 
+
+  @Column({ nullable: true })
+  manufacturer: string;
+
+  
+  @Column()
   category: string; // 재활용품의 카테고리 (예: 플라스틱, 캔, 종이 등)
 
   @Column()

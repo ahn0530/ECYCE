@@ -2,8 +2,16 @@ import { IsNotEmpty, IsNumber, IsString, IsOptional } from 'class-validator';
 
 export class CreateHistoryDto {
   @IsNotEmpty()
-  @IsNumber()
+  @IsString()
   userId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  barcode: string;
+
+  @IsNotEmpty()
+  @IsString()
+  manufacturer:string;
 
   @IsString()
   @IsNotEmpty()

@@ -5,7 +5,7 @@ import { UpdateHistoryDto } from './dto/update-history.dto';
 
 @Controller('history')
 export class HistoryController {
-  constructor(private readonly historyService: HistoryService) {}
+  constructor(private historyService: HistoryService) {}
 
   @Post()
   async create(@Body() createHistoryDto: CreateHistoryDto) {

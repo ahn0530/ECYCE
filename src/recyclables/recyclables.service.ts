@@ -40,8 +40,8 @@ export class RecyclablesService {
   }
   
 
-  async remove(name: string): Promise<boolean> {
-    const result = await this.recyclablesRepository.delete(name);
+  async remove(barcode: string): Promise<boolean> {
+    const result = await this.recyclablesRepository.delete(barcode);
     if (result.affected === 0) {
       throw new NotFoundException('삭제할 재활용품을 찾을 수 없습니다.');
     }

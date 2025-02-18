@@ -5,7 +5,7 @@ import { UpdateRecyclableDto } from './dto/update-recyclable.dto';
 
 @Controller('recyclables')
 export class RecyclablesController {
-  constructor(private readonly recyclablesService: RecyclablesService) {}
+  constructor(private recyclablesService: RecyclablesService) {}
 
   @Post()
   create(@Body() createRecyclableDto: CreateRecyclableDto) {
@@ -35,9 +35,9 @@ export class RecyclablesController {
     return updated;
   }
 
-  @Delete(':name')
-  async remove(@Param('name') name: string) {
-    const deleted = await this.recyclablesService.remove(name);
+  @Delete(':barcode')
+  async remove(@Param('barcode') barcode: string) {
+    const deleted = await this.recyclablesService.remove(barcode);
     if (!deleted) {
       throw new NotFoundException('삭제할 재활용품을 찾을 수 없습니다.');
     }

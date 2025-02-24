@@ -5,7 +5,6 @@ import { History } from './history.entity';
 import { CreateHistoryDto } from './dto/create-history.dto';
 import { UpdateHistoryDto } from './dto/update-history.dto';
 import { User } from 'src/users/user.entity';
-import { Recyclable } from 'src/recyclables/recyclable.entity';
 
 @Injectable()
 export class HistoryService {
@@ -13,27 +12,34 @@ export class HistoryService {
     @InjectRepository(History)
     private historyRepository: Repository<History>,
     @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(Recyclable)
-    private recyclablesRepository: Repository<Recyclable>,
+    private userRepository: Repository<User>
   ) {}
 
   async createHistory(createHistoryDto: CreateHistoryDto): Promise<History> {
     const { userId, barcode, manufacturer, category, points, count } = createHistoryDto;
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    let retries = 3;
 
-    if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    while (retries > 0) {
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+
+      if (!user) throw new NotFoundException('사용자를 찾을 수 없습니다.');
+
+      try {
+        // 포인트 적립 (낙관적 락 적용)
+        user.points += points * count;
+        await this.userRepository.save(user); 
+
+        // 히스토리 저장
+        const history = this.historyRepository.create({ user, barcode, manufacturer, category, points, count });
+        await this.historyRepository.save(history);
+
+        return history;
+      } catch (error) {
+        if (--retries === 0) {
+          throw new Error('포인트 적립 충돌 발생, 재시도 실패');
+        }
+      }
     }
-
-    const history = this.historyRepository.create({ user, barcode, manufacturer, category, points, count });
-    await this.historyRepository.save(history);
-
-    // 사용자 총 포인트 업데이트
-    user.points += points * count;
-    await this.userRepository.save(user);
-
-    return history;
   }
 
   async getUserHistory(userId: string): Promise<{ 

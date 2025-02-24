@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, Put, Res } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -15,10 +15,11 @@ export class UsersController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req) {
-    return req.user;
+  async login(@Req() req, @Res() res) {
+    console.log('응답 데이터:', req.user);
+    return res.json(req.user);
   }
-
+  
   @Get()
   async findAll() {
     return this.usersService.findAll();
@@ -43,6 +44,16 @@ export class UsersController {
   async remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
+
+  @UseGuards(LocalAuthGuard)
+  @Post('logout')
+  async logout(@Req() req, @Res() res) {
+    req.logout(() => {
+      res.clearCookie('connect.sid');
+      res.status(200).json({ message: 'Logged out successfully' });
+    });
+  }
+
 
   // @Get(':id/profile')
   // async getUserProfile(@Param('id') id: string) {

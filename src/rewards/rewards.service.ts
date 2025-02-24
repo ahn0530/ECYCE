@@ -27,28 +27,39 @@ export class RewardsService {
   }
 
   async redeemReward(userId: string, rewardId: number): Promise<{ userReward: UserReward, remainingPoints: number }> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    let retries = 3;
 
-    const reward = await this.rewardRepository.findOne({ where: { id: rewardId } });
-    if (!reward) throw new NotFoundException('리워드를 찾을 수 없습니다.');
+    while (retries > 0) {
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      if (!user) throw new NotFoundException('사용자를 찾을 수 없습니다.');
 
-    if (user.points < reward.cost) {
-      throw new BadRequestException('포인트가 부족합니다.');
+      const reward = await this.rewardRepository.findOne({ where: { id: rewardId } });
+      if (!reward) throw new NotFoundException('리워드를 찾을 수 없습니다.');
+
+      if (user.points < reward.cost) {
+        throw new BadRequestException('포인트가 부족합니다.');
+      }
+
+      try {
+        // 포인트 차감 (낙관적 락 적용)
+        user.points -= reward.cost;
+        await this.userRepository.save(user);
+
+        // 사용자 리워드 내역 저장
+        const userReward = this.userRewardRepository.create({
+          user,
+          reward,
+          usedPoints: reward.cost,
+        });
+        await this.userRewardRepository.save(userReward);
+
+        return { userReward, remainingPoints: user.points };
+      } catch (error) {
+        if (--retries === 0) {
+          throw new Error('포인트 사용 충돌 발생, 재시도 실패');
+        }
+      }
     }
-
-    // 포인트 차감
-    user.points -= reward.cost;
-    await this.userRepository.save(user);
-
-    // 사용자 리워드 내역 저장
-    const userReward = this.userRewardRepository.create({
-      user,
-      reward,
-      usedPoints: reward.cost,
-    });
-    await this.userRewardRepository.save(userReward);
-    return { userReward, remainingPoints: user.points };
   }
 
   async getUserRewardHistory(userId: string) {

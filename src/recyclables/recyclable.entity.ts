@@ -18,7 +18,7 @@ export class Recyclable {
   @Column( {nullable: true} )
   additionalInfo : string;
   
-  @Column( {nullable: true} )
+  @Column( { default:0 } )
   points: number;  // 포인트 가치
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

@@ -89,5 +89,4 @@ export class HistoryService {
   
     return history;
   }
-ㅍ  
 }

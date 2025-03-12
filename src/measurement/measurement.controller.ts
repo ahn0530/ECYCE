@@ -1,7 +1,7 @@
-import { Controller, Get, Param, Query, Render } from '@nestjs/common';
+import { Controller, Get, Param, Query, Render, Req, Res } from '@nestjs/common';
 import { MeasurementService } from './measurement.service';
 import { SearchDto } from './search.dto';
-
+import { Request, Response } from 'express';  
 @Controller('measurement')
 export class MeasurementController {
   constructor(private readonly measurementService: MeasurementService) {}
@@ -31,10 +31,39 @@ export class MeasurementController {
       return this.measurementService.getRecyclingByCategory(category);
   }
 
-  @Get('search')
+  @Get('/search')
   @Render('index')
-  async search(@Query() query: SearchDto) {
-    const result = await this.measurementService.search(query);
-    return { results: result.results, totalCount: result.totalCount, page: result.page, size: result.size };
+  async searchMeasurements(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('q') q?: string,
+    @Query('type') type?: string
+  ) {
+    // 페이지네이션+검색 결과를 가져옴
+    const { data, totalCount, currentPage, totalPages } =
+      await this.measurementService.getPaginatedSearch(page, limit, q, type);
+    // EJS 템플릿에 필요한 데이터 전달
+    return {
+      results: data,
+      currentPage,
+      totalPages,
+      query: q || '',
+      type: type || '',
+    };
+  }
+
+  @Get('recyclables')
+  async getRecyclablesChunk() {
+    const allRecyclables = await this.measurementService.getAllRecyclables();
+
+    // 10개씩 묶은 배열로 변환
+    const chunkSize = 10;
+    const chunks = [];
+    for (let i = 0; i < allRecyclables.length; i += chunkSize) {
+      const slice = allRecyclables.slice(i, i + chunkSize);
+      chunks.push(slice);
+    }
+
+    return chunks;
   }
 }

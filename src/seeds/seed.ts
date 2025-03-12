@@ -35,31 +35,33 @@ async function seed() {
 
   // ✅ 2. Recyclables 삽입
   const recyclables = await recyclableRepo.save([
-    { barcode: '8801121768129', name: 'Maeil 소화가 잘되는 우유 오리지널 190mL', category: '멸균팩', manufacturer: '매일유업(주)' },
-    { barcode: '8809288633052',name: 'BR 쿠키앤크림 우유 190ml', category: '멸균팩', manufacturer:'배스킨라빈스' },
+    { barcode: '8801121768129', name: 'Maeil 소화가 잘되는 우유 오리지널 190mL', category: '멸균팩', manufacturer: '매일유업(주)', points : 50 },
+    { barcode: '8809288633052',name: 'BR 쿠키앤크림 우유 190ml', category: '멸균팩', manufacturer:'배스킨라빈스', points : 50},
+    {barcode:"8801121768440",name:"매일두유",category:"멸균팩",manufacturer:"매일유업(주)",points:50},
+    {barcode:"8808244201014",name:"제주삼다수",category:"플라스틱",manufacturer:"광동제약", points:70}
   ]);
   console.log('✅ Recyclables seeded');
 
   // ✅ 3. Rewards 삽입
   const rewards = await rewardRepo.save([
-    { name: 'Discount Coupon',description:'쿠폰', cost: 100, imageUrl: 'example.png' },
+    { name: 'Coupon',description:'쿠폰', cost: 100, imageUrl: 'example.png' },
     { name: 'Gift Card',description:'카드', cost: 500, imageUrl: 'example.png' },
   ]);
   console.log('✅ Rewards seeded');
 
   // ✅ 4. History 삽입 (Users 필요)
-  const history = await historyRepo.save([
-    { user: users[0], manufacturer: '매일유업(주)', barcode: '8801121768129', category: '멸균팩', points: 20 },
-    { user: users[1], manufacturer: '매일유업(주)', barcode: '8801121768129',category: '멸균팩', points: 20 },
-  ]);
-  console.log('✅ History seeded');
+  // const history = await historyRepo.save([
+  //   { user: users[0], manufacturer: '매일유업(주)', barcode: '8801121768129', category: '멸균팩', points: 20 },
+  //   { user: users[1], manufacturer: '매일유업(주)', barcode: '8801121768129',category: '멸균팩', points: 20 },
+  // ]);
+  // console.log('✅ History seeded');
 
   // ✅ 5. UserRewards 삽입 (Users & Rewards 필요)
-  const userRewards = await userRewardRepo.save([
-    { user: users[0], reward: rewards[0], usedPoints: 100},
-    { user: users[1], reward: rewards[1], usedPoints: 500 },
-  ]);
-  console.log('✅ User Rewards seeded');
+  // const userRewards = await userRewardRepo.save([
+  //   { user: users[0], reward: rewards[0], usedPoints: 100},
+  //   { user: users[1], reward: rewards[1], usedPoints: 500 },
+  // ]);
+  // console.log('✅ User Rewards seeded');
 
   console.log('🎉 Seed completed successfully!');
   await AppDataSource.destroy();

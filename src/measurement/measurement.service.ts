@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { History } from '../history/history.entity';
 import { Recyclable } from '../recyclables/recyclable.entity';
 import { SearchDto } from './search.dto';
@@ -73,33 +73,58 @@ async getRecyclingByCategory(category: string) {
     return { category, totalRecycling: total?.total || 0 };
     }
 
-  async search(query: SearchDto): Promise<{ results: Recyclable[]; totalCount: number; page: number; size: number }> {
-    const { q, type, page = 1, size = 10 } = query;
-    const skip = (page - 1) * size;
-
-    let queryBuilder = this.recyclablesRepository.createQueryBuilder('recyclable');
-
-    if (q) {
-      const lowerQ = q.toLowerCase();
-      if (type === 'product') {
-        queryBuilder = queryBuilder.where('LOWER(recyclable.name) LIKE :q OR LOWER(recyclable.additionalInfo) LIKE :q', { q: `%${lowerQ}%` });
-      } else if (type === 'company') {
-        queryBuilder = queryBuilder.where('LOWER(recyclable.manufacturer) LIKE :q', { q: `%${lowerQ}%` });
-      } else {
-        queryBuilder = queryBuilder.where(
-          'LOWER(recyclable.name) LIKE :q OR LOWER(recyclable.additionalInfo) LIKE :q OR LOWER(recyclable.manufacturer) LIKE :q OR recyclable.barcode LIKE :q',
-          { q: `%${lowerQ}%` },
-        );
+    async getPaginatedSearch(
+      page: number,
+      limit: number,
+      q?: string,
+      type?: string,
+    ): Promise<{
+      data: Recyclable[];
+      totalCount: number;
+      currentPage: number;
+      totalPages: number;
+    }> {
+      const skip = (page - 1) * limit;
+  
+      // 검색 조건 빌드
+      let where: any = {};
+      if (q) {
+        const lowerQ = q.toLowerCase();
+        if (type === 'product') {
+          where = [
+            { name: ILike(`%${q}%`) },
+            { additionalInfo: ILike(`%${q}%`) },
+          ];
+        } else if (type === 'company') {
+          where = { manufacturer: ILike(`%${q}%`) };
+        } else {
+          // 전체
+          where = [
+            { barcode: ILike(`%${q}%`) },
+            { name: ILike(`%${q}%`) },
+            { manufacturer: ILike(`%${q}%`) },
+            { additionalInfo: ILike(`%${q}%`) },
+          ];
+        }
       }
+  
+      const [data, totalCount] = await this.recyclablesRepository.findAndCount({
+        where,
+        skip,
+        take: limit,
+      });
+  
+      const totalPages = Math.ceil(totalCount / limit);
+  
+      return {
+        data,
+        totalCount,
+        currentPage: page,
+        totalPages,
+      };
     }
 
-    const [results, totalCount] = await queryBuilder.skip(skip).take(size).getManyAndCount();
-
-    return {
-      results,
-      totalCount,
-      page,
-      size,
-    };
+    async getAllRecyclables(): Promise<Recyclable[]> {
+      return this.recyclablesRepository.find();
+    }
   }
-}

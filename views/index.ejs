@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>제품/기업 검색</title>
   <style>
     body {
@@ -34,18 +34,27 @@
 </head>
 <body>
   <h1>제품/기업 검색</h1>
+
+  <!-- 검색 폼 -->
   <form id="searchForm">
-    <input type="text" id="searchQuery" name="q" placeholder="검색어 입력 (예: Eco)" required />
+    <input
+      type="text"
+      id="searchQuery"
+      name="q"
+      placeholder="검색어 입력 (예: Eco)"
+      value="<%= query || '' %>"
+    />
     <select id="searchType" name="type">
-      <option value="">전체</option>
-      <option value="product">제품</option>
-      <option value="company">기업</option>
+      <option value="" <%= !type ? 'selected' : '' %>>전체</option>
+      <option value="product" <%= type === 'product' ? 'selected' : '' %>>제품</option>
+      <option value="company" <%= type === 'company' ? 'selected' : '' %>>기업</option>
     </select>
     <button type="submit">검색</button>
   </form>
-  
-  <div id="results">
-    <table id="resultsTable">
+
+  <!-- 검색 결과 및 페이지네이션 -->
+  <div id="resultsContainer">
+    <table>
       <thead>
         <tr>
           <th>바코드</th>
@@ -54,8 +63,9 @@
           <th>설명</th>
         </tr>
       </thead>
-      <tbody>
-        <% if (results.length > 0) { %>
+      <!-- ★ 여기만 부분 교체할 예정이므로 tbody에 id 부여 ★ -->
+      <tbody id="resultsBody">
+        <% if (results && results.length > 0) { %>
           <% results.forEach(item => { %>
             <tr>
               <td><%= item.barcode %></td>
@@ -65,15 +75,101 @@
             </tr>
           <% }) %>
         <% } else { %>
-          <tr><td colspan="4">검색 결과가 없습니다.</td></tr>
+          <tr>
+            <td colspan="4">검색 결과가 없습니다.</td>
+          </tr>
         <% } %>
       </tbody>
     </table>
+
+    <!-- 페이지네이션 영역 (교체하지 않으므로 이벤트 리스너가 유지됨) -->
     <div id="pagination">
       <button id="prevPage">이전</button>
-      <span id="currentPage">1</span>
+      <span id="currentPage"><%= currentPage || 1 %></span>
       <button id="nextPage">다음</button>
     </div>
   </div>
+
+  <script>
+    console.log("[DEBUG] 스크립트 로드됨.");
+
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("[DEBUG] DOMContentLoaded 이벤트 발생.");
+
+      // 서버 렌더링된 currentPage
+      let currentPage = parseInt(document.getElementById("currentPage").textContent) || 1;
+
+      const prevBtn = document.getElementById("prevPage");
+      const nextBtn = document.getElementById("nextPage");
+
+      // "이전" 버튼 클릭
+      prevBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        if (currentPage > 1) {
+          currentPage--;
+          fetchPageData(currentPage);
+        } else {
+          console.log("[DEBUG] 현재 페이지가 1이라 이동 불가");
+        }
+      });
+
+      // "다음" 버튼 클릭
+      nextBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        currentPage++;
+        fetchPageData(currentPage);
+      });
+
+      // "검색" 폼 제출
+      document.getElementById("searchForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        currentPage = 1;
+        fetchPageData(currentPage);
+      });
+
+      // ★ 테이블 본문만 교체하는 Ajax 함수 ★
+      function fetchPageData(page) {
+
+        // 검색어/타입 값 추출
+        const query = document.getElementById("searchQuery").value.trim();
+        const type = document.getElementById("searchType").value;
+
+        // 요청 URL
+        const url = `/measurement/search?page=${page}&q=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}`;
+        console.log("[DEBUG] 요청 URL:", url);
+
+        fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+
+            // 새 문서에서 <tbody id="resultsBody">만 추출
+            const newBody = doc.querySelector("#resultsBody");
+            // 그리고 새 문서에서 #currentPage 가져오기
+            const newPageSpan = doc.querySelector("#currentPage");
+
+            if (newBody) {
+              // 현재 페이지의 #resultsBody만 교체
+              document.getElementById("resultsBody").innerHTML = newBody.innerHTML;
+            } else {
+              console.log("[DEBUG] 새 HTML에서 #resultsBody를 찾을 수 없습니다.");
+            }
+
+            // 새로운 currentPage 갱신
+            if (newPageSpan) {
+              // 화면의 currentPage 스팬 텍스트도 변경
+              document.getElementById("currentPage").textContent = newPageSpan.textContent;
+
+              // 내부 변수 currentPage 값 갱신
+              currentPage = parseInt(newPageSpan.textContent) || 1;
+            } else {
+              console.log("[DEBUG] 새 HTML에서 #currentPage를 찾을 수 없습니다.");
+            }
+          })
+          .catch(err => console.error("[DEBUG] 데이터 로드 오류:", err));
+      }
+    });
+  </script>
 </body>
 </html>

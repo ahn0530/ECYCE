@@ -103,6 +103,7 @@ async getRecyclingByCategory(category: string) {
             { barcode: ILike(`%${q}%`) },
             { name: ILike(`%${q}%`) },
             { manufacturer: ILike(`%${q}%`) },
+            { points: ILike(`%${q}%`) },
             { additionalInfo: ILike(`%${q}%`) },
           ];
         }

@@ -30,16 +30,19 @@ export class UsersController {
     return this.usersService.findById(id);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Put(':id/password')
   async changePassword(@Param('id') id: string, @Body('password') newPassword: string) {
     return this.usersService.changePassword(id, newPassword);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.usersService.remove(id);

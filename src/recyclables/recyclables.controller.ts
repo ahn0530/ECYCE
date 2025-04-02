@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, Put, UseGuards } from '@nestjs/common';
 import { RecyclablesService } from './recyclables.service';
 import { CreateRecyclableDto } from './dto/create-recyclable.dto';
 import { UpdateRecyclableDto } from './dto/update-recyclable.dto';
+import { LocalAuthGuard } from '@src/auth/local.authGuard';
 
 @Controller('recyclables')
 export class RecyclablesController {
@@ -25,7 +26,7 @@ export class RecyclablesController {
     }
     return recyclable;
   }
-
+  
   @Put(':barcode')
   async update(@Param('barcode') barcode: string, @Body() updateRecyclableDto: UpdateRecyclableDto) {
     const updated = await this.recyclablesService.update(barcode, updateRecyclableDto);

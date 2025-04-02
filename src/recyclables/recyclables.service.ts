@@ -7,6 +7,8 @@ import { UpdateRecyclableDto } from './dto/update-recyclable.dto';
 
 @Injectable()
 export class RecyclablesService {
+  private readonly DEFAULT_IMAGE = '/images/default-recyclable.png';
+
   constructor(
     @InjectRepository(Recyclable)
     private recyclablesRepository: Repository<Recyclable>,
@@ -18,7 +20,14 @@ export class RecyclablesService {
     if (existing) {
       throw new ConflictException('이미 등록된 바코드입니다.');
     }
-    return this.recyclablesRepository.insert(recyclable);
+    
+    // 기본 이미지 URL 설정
+    const newRecyclable = {
+      ...recyclable,
+      imageUrl: recyclable.imageUrl || this.DEFAULT_IMAGE
+    };
+    
+    return this.recyclablesRepository.insert(newRecyclable);
   }
   
   async findAll(): Promise<Recyclable[]> {
@@ -30,6 +39,11 @@ export class RecyclablesService {
   }
   
   async update(barcode: string, updateRecyclableDto: UpdateRecyclableDto): Promise<boolean> {
+    // 이미지 URL이 빈 문자열이면 기본 이미지로 설정
+    if (updateRecyclableDto.imageUrl === '') {
+      updateRecyclableDto.imageUrl = this.DEFAULT_IMAGE;
+    }
+    
     const result = await this.recyclablesRepository.update({ barcode }, updateRecyclableDto);
     
     if (result.affected === 0) {

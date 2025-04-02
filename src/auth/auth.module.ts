@@ -12,7 +12,7 @@ import { User } from 'src/users/user.entity';
   imports: [
     //forwardRef:서비스 간 의존성 주입 
     forwardRef(() => UsersModule),
-    PassportModule.register({ session: false }),
+    PassportModule.register({ session: true }),
     TypeOrmModule.forFeature([User]),
   ],
   providers: [AuthService, LocalStrategy, LocalSerializer, LocalAuthGuard],

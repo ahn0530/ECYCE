@@ -12,7 +12,7 @@ export class CreateRewardDto {
 
   @IsString()
   @IsNotEmpty()
-  imageUrl: string;
+  imageUrl?: string;
 
   @IsString()
   @IsOptional()

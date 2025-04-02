@@ -43,14 +43,29 @@ export class MeasurementController {
     const { data, totalCount, currentPage, totalPages } =
       await this.measurementService.getPaginatedSearch(page, limit, q, type);
     // EJS 템플릿에 필요한 데이터 전달
-    return {
-      results: data,
-      currentPage,
-      totalPages,
-      query: q || '',
-      type: type || '',
-    };
-  }
+    const topCompanies = await this.measurementService.getTopEPRCompanies(3);
+    const topProducts = await this.measurementService.getTopScannedProducts(3);
+    const topCategories = await this.measurementService.getCategoryDistribution();
+  
+  // 제품 스캔 최대값 계산 (차트 표시용)
+  const maxProductScans = topProducts.length > 0 
+    ? Math.max(...topProducts.map(p => p.scans)) 
+    : 0;
+
+  // EJS 템플릿에 필요한 데이터 전달
+  return {
+    results: data,
+    currentPage,
+    totalPages,
+    query: q || '',
+    type: type || '',
+    topCompanies,
+    topProducts,
+    topCategories,
+    maxProductScans
+  };
+}
+
 
   @Get('recyclables')
   async getRecyclablesChunk() {

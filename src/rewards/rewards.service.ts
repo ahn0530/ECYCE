@@ -8,6 +8,8 @@ import { User } from '../users/user.entity';
 import { UserReward } from './user_reward.entity';
 @Injectable()
 export class RewardsService {
+  private readonly DEFAULT_IMAGE = '/images/default-reward.png';
+
   constructor(
     @InjectRepository(Reward)
     private rewardRepository: Repository<Reward>,
@@ -22,10 +24,32 @@ export class RewardsService {
   }
 
   async createReward(createRewardDto: CreateRewardDto): Promise<Reward> {
-    const reward = this.rewardRepository.create(createRewardDto);
+    // 기본 이미지 URL 설정
+    const rewardData = {
+      ...createRewardDto,
+      imageUrl: createRewardDto.imageUrl || this.DEFAULT_IMAGE
+    };
+    
+    const reward = this.rewardRepository.create(rewardData);
     return await this.rewardRepository.save(reward);
   }
 
+  async updateReward(id: number, updateRewardDto: UpdateRewardDto): Promise<Reward> {
+    const reward = await this.rewardRepository.findOne({ where: { id } });
+    
+    if (!reward) {
+      throw new NotFoundException('업데이트할 리워드를 찾을 수 없습니다.');
+    }
+    
+    // 이미지 URL이 빈 문자열이면 기본 이미지로 설정
+    if (updateRewardDto.imageUrl === '') {
+      updateRewardDto.imageUrl = this.DEFAULT_IMAGE;
+    }
+    
+    const updated = this.rewardRepository.merge(reward, updateRewardDto);
+    return await this.rewardRepository.save(updated);
+  }
+  
   async redeemReward(userId: string, rewardId: number): Promise<{ userReward: UserReward, remainingPoints: number }> {
     let retries = 3;
 

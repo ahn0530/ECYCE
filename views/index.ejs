@@ -30,10 +30,28 @@
       padding: 5px 10px;
       margin-right: 5px;
     }
+    .product-image {
+      max-width: 60px;      /* 이미지 최대 너비 감소 */
+      max-height: 60px;     /* 이미지 최대 높이 감소 */
+      width: auto;          /* 비율 유지 */
+      height: auto;         /* 비율 유지 */
+      object-fit: contain;  /* 이미지 비율 유지 */
+    }
+    td:first-child {
+      width: 70px;          /* 이미지 셀 너비 지정 */
+      text-align: center;   /* 이미지 가운데 정렬 */
+    }
   </style>
 </head>
 <body>
   <h1>제품/기업 검색</h1>
+
+  <%- include('dashboard', { 
+    topCompanies: topCompanies || [], 
+    topProducts: topProducts || [], 
+    topCategories: topCategories || [],
+    maxProductScans: maxProductScans || 0
+  }) %>
 
   <!-- 검색 폼 -->
   <form id="searchForm">
@@ -57,6 +75,7 @@
     <table>
       <thead>
         <tr>
+          <th>이미지</th>
           <th>바코드</th>
           <th>제품명</th>
           <th>기업명</th>
@@ -69,6 +88,10 @@
         <% if (results && results.length > 0) { %>
           <% results.forEach(item => { %>
             <tr>
+              <td>
+                <img src="<%= item.imageUrl %>" alt="<%= item.name %>" class="product-image" 
+                    onerror="this.onerror=null; this.src='/images/default-recyclable.png';" />
+              </td>
               <td><%= item.barcode %></td>
               <td><%= item.name %></td>
               <td><%= item.manufacturer %></td>
@@ -78,7 +101,7 @@
           <% }) %>
         <% } else { %>
           <tr>
-            <td colspan="4">검색 결과가 없습니다.</td>
+            <td colspan="6">검색 결과가 없습니다.</td>
           </tr>
         <% } %>
       </tbody>

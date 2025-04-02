@@ -12,7 +12,7 @@ export class Reward {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ default: '/images/default-reward.png' })
   imageUrl: string;
 
   @Column()

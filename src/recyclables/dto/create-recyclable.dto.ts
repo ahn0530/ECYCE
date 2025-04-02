@@ -23,6 +23,10 @@ export class CreateRecyclableDto {
   additionalInfo?: string;  // 추가 정보 필드 반영
 
   @IsOptional()
+  @IsString()
+  imageUrl?: string; 
+
+  @IsOptional()
   @IsNumber()
   points: number;
 

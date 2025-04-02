@@ -18,6 +18,8 @@ services:
       DB_NAME: ${DB_NAME}
     depends_on:
       - postgres
+    volumes:
+      - ./public/images:/app/public/images
 
   postgres:
     image: postgres:15

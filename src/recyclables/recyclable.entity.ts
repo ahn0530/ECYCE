@@ -21,6 +21,9 @@ export class Recyclable {
   @Column( { default:0 } )
   points: number;  // 포인트 가치
 
+   @Column({ nullable: true, default: '/images/default-recyclable.png' })
+  imageUrl: string;  // 제품 이미지 URL
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 }

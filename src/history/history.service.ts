@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { History } from './history.entity';
 import { CreateHistoryDto } from './dto/create-history.dto';
-import { UpdateHistoryDto } from './dto/update-history.dto';
 import { User } from 'src/users/user.entity';
+import { RecyclablesService } from '@src/recyclables/recyclables.service';
 
 @Injectable()
 export class HistoryService {
@@ -12,25 +12,56 @@ export class HistoryService {
     @InjectRepository(History)
     private historyRepository: Repository<History>,
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+    private recyclablesService: RecyclablesService
   ) {}
 
   async createHistory(createHistoryDto: CreateHistoryDto): Promise<History> {
-    const { userId, barcode, manufacturer, category, points, count } = createHistoryDto;
+    const { id, barcode, manufacturer, category, points, count = 1 } = createHistoryDto;
     let retries = 3;
 
+    // Find the user
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException('사용자를 찾을 수 없습니다.');
+
+    // If only barcode is provided, fetch product details from Recyclables
+    let productInfo = {
+      manufacturer: manufacturer,
+      category: category,
+      points: points
+    };
+
+    if (!manufacturer || !category || !points) {
+      const recyclable = await this.recyclablesService.findByBarcode(barcode);
+      if (!recyclable) {
+        throw new NotFoundException('해당 바코드의 제품을 찾을 수 없습니다.');
+      }
+      
+      productInfo = {
+        manufacturer: recyclable.manufacturer,
+        category: recyclable.category,
+        points: recyclable.points
+      };
+    }
+
     while (retries > 0) {
-      const user = await this.userRepository.findOne({ where: { id: userId } });
-
-      if (!user) throw new NotFoundException('사용자를 찾을 수 없습니다.');
-
       try {
-        // 포인트 적립 (낙관적 락 적용)
-        user.points += points * count;
+        // Calculate points
+        const earnedPoints = productInfo.points * count;
+
+        // Add points to user (optimistic locking)
+        user.points += earnedPoints;
         await this.userRepository.save(user); 
 
-        // 히스토리 저장
-        const history = this.historyRepository.create({ user, barcode, manufacturer, category, points, count });
+        // Save history
+        const history = this.historyRepository.create({
+          user, 
+          barcode,
+          manufacturer: productInfo.manufacturer,
+          category: productInfo.category,
+          points: productInfo.points,
+          count
+        });
         await this.historyRepository.save(history);
 
         return history;
@@ -41,7 +72,6 @@ export class HistoryService {
       }
     }
   }
-
   async getUserHistory(userId: string): Promise<{ 
     totalPoints: number; 
     totalRecycling: number; 

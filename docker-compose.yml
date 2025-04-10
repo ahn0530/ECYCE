@@ -4,7 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ahn0530/ecyce:latest
+    image: ahn0530/ecyce:amd64
+    platform: linux/amd64
     container_name: nestjs-app
     restart: always
     ports:
